@@ -42,26 +42,28 @@ export class DataflowUtils {
         storage = new Storage();
     }
 
-    deploy(): Promise<
+    deploy(
+        version?: string
+    ): Promise<
         [IJob, ICreateJobFromTemplateRequest | undefined, {} | undefined]
     > {
         return new Promise(async (resolve, reject) => {
             try {
-                const request = await this.#getRequest();
+                const request = await this.#getRequest(version);
                 resolve(client.createJobFromTemplate(request));
             } catch (err) {
                 reject(err);
             }
         });
     }
-    #getRequest(): Promise<Request> {
+    #getRequest(versionOverride?: string | undefined): Promise<Request> {
         return new Promise(async (resolve, reject) => {
             try {
                 const {
                     properties,
                     template: gcsPath,
                     version,
-                } = await this.#getPaths();
+                } = await this.#getPaths(versionOverride);
                 const projectId = await client.getProjectId();
                 const jobName = `${this.#artifactId}-${version}-a`;
                 resolve({
@@ -76,7 +78,7 @@ export class DataflowUtils {
         });
     }
 
-    #getPaths(): Promise<Paths> {
+    #getPaths(versionOverride?: string | undefined): Promise<Paths> {
         return new Promise(async (resolve, reject) => {
             try {
                 const artifactId = this.#artifactId;
@@ -87,7 +89,8 @@ export class DataflowUtils {
                     bucketName,
                     projectId: await client.getProjectId(),
                 };
-                const version = await getLatestVersion(options);
+                const version =
+                    versionOverride ?? (await getLatestVersion(options));
                 resolve({
                     properties: `gs://${bucketName}/templates/${artifactId}/${version}/${dataflowName}/properties.yaml`,
                     template: `gs://${bucketName}/templates/${artifactId}/${version}/${dataflowName}/${artifactId}-${version}.jar`,
