@@ -1,0 +1,49 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    if: "!contains(github.event.commits[0].author.name, 'GitHub Actions Bot')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://npm.pkg.github.com'
+            # Defaults to the user or organization that owns the workflow file
+          scope: '@crypto-jambot'
+      - name: Install dependencies
+        run: npm install --production --engine-strict --ignore-scripts --no-package-lock
+      # - name: Run tests
+      #   run: npm test
+      - name: Run build
+        run: npm run build
+      - run: rm -rf node_modules/
+      - name: Setup git config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+      - name: Patch version
+        run: npm run patch
+      - name: Push package.json update
+        run: git push
+      - name: Push tag
+        run: git push --tags
+      - name: publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
