@@ -1,0 +1,43 @@
+{
+  "name": "@crypto-jambot/dataflow-utils",
+  "version": "1.0.0-0",
+  "description": "Dataflow deployment utilities.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "!dist/**/*.map"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "scripts": {
+    "start": "node .",
+    "build": "tsc -p tsconfig.build.json && npm run moveMissingFiles",
+    "dev": "nodemon src/server.ts",
+    "patch": "npm version patch --git-tag-version",
+    "moveMissingFiles": "cp src/*.d.ts dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crypto-jambot/dataflow-utils.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crypto-jambot/dataflow-utils/issues"
+  },
+  "homepage": "https://github.com/crypto-jambot/dataflow-utils#readme",
+  "dependencies": {
+    "@google-cloud/dataflow": "^2.0.1",
+    "@google-cloud/storage": "^6.8.0",
+    "google-gax": "^3.5.2",
+    "js-yaml": "^4.1.0",
+    "version-sort": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.5",
+    "nodemon": "^2.0.20"
+  }
+}
