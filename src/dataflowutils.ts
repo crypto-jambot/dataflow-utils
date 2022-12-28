@@ -1,5 +1,6 @@
 import { TemplatesServiceClient, protos } from "@google-cloud/dataflow";
 import { Storage, DownloadResponse } from "@google-cloud/storage";
+// @ts-ignore
 import yaml from "js-yaml";
 import { ClientOptions } from "google-gax";
 import { getLatestVersion } from "./versionutils";
