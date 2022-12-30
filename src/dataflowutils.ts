@@ -31,9 +31,9 @@ export type DataflowUtilOptions = ClientOptions & {
 let client: TemplatesServiceClient;
 let storage: Storage;
 export class DataflowUtils {
-    #bucketName: string;
-    #artifactId: string;
-    #dataflowName: string;
+    readonly #bucketName: string;
+    readonly #artifactId: string;
+    readonly #dataflowName: string;
     constructor(options: DataflowUtilOptions) {
         const { bucketName, artifactId, dataflowName } = options;
         this.#bucketName = bucketName;
@@ -94,7 +94,7 @@ export class DataflowUtils {
                     versionOverride ?? (await getLatestVersion(options));
                 resolve({
                     properties: `gs://${bucketName}/templates/${artifactId}/${version}/${dataflowName}/properties.yaml`,
-                    template: `gs://${bucketName}/templates/${artifactId}/${version}/${dataflowName}/${artifactId}-${version}.jar`,
+                    template: `gs://${bucketName}/templates/${artifactId}/${version}/${dataflowName}/${artifactId}-${version}`,
                     version,
                 });
             } catch (err) {
