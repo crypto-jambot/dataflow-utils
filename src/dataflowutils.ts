@@ -1,4 +1,8 @@
-import { TemplatesServiceClient, protos } from "@google-cloud/dataflow";
+import {
+    TemplatesServiceClient,
+    protos,
+    JobsV1Beta3Client,
+} from "@google-cloud/dataflow";
 import { Storage, DownloadResponse } from "@google-cloud/storage";
 // @ts-ignore
 import yaml from "js-yaml";
@@ -29,6 +33,7 @@ export type DataflowUtilOptions = ClientOptions & {
 };
 
 let client: TemplatesServiceClient;
+let jobsClient: JobsV1Beta3Client;
 let storage: Storage;
 export class DataflowUtils {
     readonly #bucketName: string;
@@ -40,6 +45,7 @@ export class DataflowUtils {
         this.#artifactId = artifactId;
         this.#dataflowName = dataflowName;
         client = new TemplatesServiceClient(options);
+        jobsClient = new JobsV1Beta3Client(options);
         storage = new Storage();
     }
 
@@ -57,6 +63,7 @@ export class DataflowUtils {
             }
         });
     }
+
     #getRequest(versionOverride?: string | undefined): Promise<Request> {
         return new Promise(async (resolve, reject) => {
             try {
@@ -152,4 +159,32 @@ export class DataflowUtils {
             ) || filename
         );
     }
+}
+
+export async function getStatus(
+    projectId: string,
+    jobId: string
+): Promise<
+    | protos.google.dataflow.v1beta3.JobState
+    | "JOB_STATE_UNKNOWN"
+    | "JOB_STATE_STOPPED"
+    | "JOB_STATE_RUNNING"
+    | "JOB_STATE_DONE"
+    | "JOB_STATE_FAILED"
+    | "JOB_STATE_CANCELLED"
+    | "JOB_STATE_UPDATED"
+    | "JOB_STATE_DRAINING"
+    | "JOB_STATE_DRAINED"
+    | "JOB_STATE_PENDING"
+    | "JOB_STATE_CANCELLING"
+    | "JOB_STATE_QUEUED"
+    | "JOB_STATE_RESOURCE_CLEANING_UP"
+    | null
+    | undefined
+> {
+    if (!jobsClient) {
+        jobsClient = new JobsV1Beta3Client();
+    }
+    const [jobs] = await jobsClient.listJobs({ projectId });
+    return jobs.filter(({ id }) => id === jobId)[0].currentState;
 }
