@@ -1,1 +1,1 @@
-export { DataflowUtils, DataflowUtilOptions } from "./dataflowutils";
+export { DataflowUtils, DataflowUtilOptions, getStatus } from "./dataflowutils";
